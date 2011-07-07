@@ -1,0 +1,127 @@
+\documentclass{report}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,amsthm,pxfonts,listings,color}
+\usepackage[colorlinks]{hyperref}
+\definecolor{gray}{rgb}{0.6,0.6,0.6}
+
+\usepackage{caption}
+\DeclareCaptionFormat{listing}{\llap{\color{gray}#1\hspace{10pt}}\tt{}#3}
+\captionsetup[lstlisting]{format=listing, singlelinecheck=false, margin=0pt, font={bf}}
+
+\lstset{columns=fixed,basicstyle={\tt},numbers=left,firstnumber=auto,basewidth=0.5em,showstringspaces=false,numberstyle={\color{gray}\scriptsize}}
+
+\newcommand{\Ref}[2]{\hyperref[#2]{#1 \ref*{#2}}}
+
+\lstnewenvironment{asmcode}       {}{}
+\lstnewenvironment{cppcode}       {\lstset{language=c++}}{}
+\lstnewenvironment{javacode}      {\lstset{language=java}}{}
+\lstnewenvironment{javascriptcode}{}{}
+\lstnewenvironment{htmlcode}      {\lstset{language=html}}{}
+\lstnewenvironment{perlcode}      {\lstset{language=perl}}{}
+\lstnewenvironment{rubycode}      {\lstset{language=ruby}}{}
+
+\lstnewenvironment{resourcecode}{}{}
+
+
+\title{Rift Compiler}
+\author{Spencer Tipping}
+
+\begin{document}
+\maketitle{}
+\tableofcontents{}
+
+\chapter{Introduction}
+  Rift is structured as a self-hosting JIT compiler. The advantage of this approach is that it's fairly straightforward to bootstrap into a native tracing JIT. The main disadvantage is a
+  highly convoluted build process that involves multiple compilations. Here's how the source code is structured:
+
+\begin{enumerate}
+\item[\tt asm/]    An ELF generator and x86-64 assembler implemented in pure Ruby
+\item[\tt core/]   A compiler from Rift-core (a subset of Ruby) to x86-64 assembly implemented in Rift-core
+\item[\tt stdlib/] An alternative standard library implemented in Rift-core
+\item[\tt jit/]    An optimizing trace compiler written using the alternative standard library
+\end{enumerate}
+
+  \noindent The build process consists of these two steps:
+
+\begin{enumerate}
+\item{YARV or MRI is used to run the Rift compiler source on itself to produce {\tt bin/rift}}
+\item{{\tt bin/rift} is used on its own source to produce an optimized {\tt bin/rift}}
+\end{enumerate}
+
+\section{Internal differences from Rubinius}
+    Rubinius implements a bootstrapping JIT compiler for Ruby that is designed with many of the same considerations. The main deviation is in the semantic model for Ruby. Rubinius aims for
+    100\% compatibility with the existing MRI toolchain, including C API source compatibility. Possibly as a result of this decision, certain features such as {\tt call/cc} are unimplemented,
+    yielding an arguably more complex interpreter.
+
+    Rift's implementation is centered around continuation-passing style, even to the point of defining an alternative assembly-level calling convention to support it. This results in very fast
+    processing of nonlocal exits, {\tt call/cc}, exceptions, etc. It may never support extensions written in C, though direct access to the assembly-level compiler should provide a viable
+    alternative.
+
+\section{Linguistic differences from Ruby 1.9}
+    Rift is centered around the Rift-core language mentioned earlier. Rift-core is a generalization of Ruby that can be customized to implement a superset of Ruby 1.9. However, it can also
+    implement things outside of the official Ruby standard. In particular, it supports generalizations such as user-defined operators, first-class prefix and postfix modifiers (e.g.~{\tt
+    rescue}, {\tt until}), first-class declarative syntax (e.g.~{\tt class}, {\tt def}), and numerous compiler-related extensions to the standard library.
+
+\chapter{Rift-Core}
+  Rift-core is a generalized subset of Ruby that forms the basis for the Rift compiler. As described earlier, it is designed to be specialized to conform to the existing Ruby implementation,
+  though it can also be customized in other ways. This chapter describes its syntax and semantics.
+
+\lstset{caption={core/init.rb},name={core/init.rb}}\begin{rubycode}
+Object.const_set :Rift, Module.new
+require 'core/tree' \end{rubycode}
+
+\section{Syntax elements}
+    The unspecialized Rift-core parser knows how to deal with the following syntax elements:
+
+\begin{itemize}
+\item{Line comments}
+\item{Strings without {\tt \#\{...\}} escapes}
+\item{Unquoted symbols}
+\item{64-bit signed integers}
+\item{Double-precision floating point numbers}
+\item{{\tt true}, {\tt false}, {\tt nil}, and {\tt self}}
+\item{Class variables (e.g.~{\tt @foo})}
+\item{Global variables (e.g.~{\tt \$bar})}
+\item{Constants (e.g.~{\tt Foo})}
+\item{Arrays of expressions}
+\item{Ruby 1.8-style hashes (e.g.~{\tt \{:foo => :bar\}})}
+\item{Ruby 1.9-style hashes (e.g.~{\tt \{foo:~:bar\}})}
+\item{{\tt do ... end} blocks}
+\item{Braced blocks}
+\item{Ruby infix and prefix operators (e.g.~{\tt +}, {\tt <<}, {\tt =}, {\tt ...}, {\tt ::}, etc.)}
+\end{itemize}
+
+    Notably absent from the general syntax are:
+
+\begin{itemize}
+\item{{\tt class} and {\tt def}: These are shorthands for {\tt Class.new} and {\tt define\_method}, respectively.}
+\item{{\tt if}, {\tt for}, {\tt while}, etc: These are shorthands for method calls on {\tt TrueClass}, {\tt FalseClass}, and {\tt Enumerable}.}
+\item{Regular expressions.}
+\item{Various quoted forms such as {\tt \%x/stuff/}.}
+\item{{\tt =begin} and {\tt =end}.}
+\item{Short-circuit logical operators. These are defined later because they impact the evaluation semantics.}
+\end{itemize}
+
+    The parser returns an instance of {\tt Rift::Tree} that represents the original source code losslessly. Any given parser can be specialized to return new user-defined subclasses of {\tt
+    Rift::Tree}, each with their own compilation semantics.
+
+\lstset{caption={core/tree.rb},name={core/tree.rb}}\begin{rubycode}
+Rift.const_set :Tree, Class.new do
+  include Enumerable
+  attr :data, :children, :source
+
+  define_method :initialize do |data, *children, source|
+    @data, @children, @source = data, children, source
+  end
+
+  define_method :each do |&block|
+    @children.each block
+    yield self
+  end
+
+  define_method "[]".to_sym do |*args|
+    @children[*args]
+  end
+end \end{rubycode}
+
+\end{document}
