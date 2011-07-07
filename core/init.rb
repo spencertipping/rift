@@ -1,2 +1,4 @@
-Object.const_set :Rift, Module.new
-require 'core/tree'
+const_set :Rift, Module.new
+
+require 'core/lib/init'
+require 'core/tree/init'

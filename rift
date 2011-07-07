@@ -442,7 +442,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 __
 meta::data('output-dir', '/tmp');
-meta::data('pdf-output-file', '/tmp/rift.sLL5/document.pdf');
+meta::data('pdf-output-file', '/tmp/rift.mo2U/document.pdf');
 meta::data('pdf-reader', '/usr/bin/evince');
 meta::data('pdftex-command', 'pdflatex -output-directory=__TEMPORARY_DIRECTORY__ __INPUT_FILE__');
 meta::data('permanent-identity', 'f94d0b1ca96a1cea485cf737413845db');
@@ -1848,9 +1848,29 @@ meta::section('rift-core', <<'__');
   though it can also be customized in other ways. This chapter describes its syntax and semantics.
 
   - ruby core/init.rb << end
-    Object.const_set :Rift, Module.new
-    require 'core/tree'
+    const_set :Rift, Module.new
+
+    require 'core/lib/init'
+    require 'core/tree/init'
   - end
+
+  - s1 Design pattern: extensible subclassing
+    Rather than have subclasses be ``parallel'' to their parents, the subclasses in Rift-core are generally stored as constants. So, for instance, if {\tt A < B}, then {\tt A}'s constant would
+    be stored as {\tt B::A}. {\tt Rift::Extensible} provides a method to do this:
+
+    - ruby core/lib/init.rb << end
+      require 'core/lib/extensible'
+    - end
+
+    - ruby core/lib/extensible.rb << end
+      Rift.const_set :Extensible, Module.new do
+        define_method :extensible_subclass do |name, &initializer|
+          child = Class.new self, &initializer
+          const_set name, child
+          self
+        end
+      end
+    - end
 
   - s1 Syntax elements
     The unspecialized Rift-core parser knows how to deal with the following syntax elements:
@@ -1870,6 +1890,8 @@ meta::section('rift-core', <<'__');
       - item Ruby 1.9-style hashes (e.g.~{\tt \{foo:~:bar\}})
       - item {\tt do ... end} blocks
       - item Braced blocks
+      - item Destructuring block binds
+      - item Last-parameter variadic binds
       - item Ruby infix and prefix operators (e.g.~{\tt +}, {\tt <<}, {\tt =}, {\tt ...}, {\tt ::}, etc.)
     - end
 
@@ -1887,22 +1909,15 @@ meta::section('rift-core', <<'__');
     The parser returns an instance of {\tt Rift::Tree} that represents the original source code losslessly. Any given parser can be specialized to return new user-defined subclasses of {\tt
     Rift::Tree}, each with their own compilation semantics.
 
-    - ruby core/tree.rb << end
-      Rift.const_set :Tree, Class.new do
+    - ruby core/tree/init.rb << end
+      Rift.const_set :Tree, Class.new Struct.new(:operation, :children, :source) do
         include Enumerable
-        attr :data, :children, :source
-
-        define_method :initialize do |data, *children, source|
-          @data, @children, @source = data, children, source
-        end
+        extend  Extensible
 
         define_method :each do |&block|
-          @children.each block
-          yield self
-        end
-
-        define_method "[]".to_sym do |*args|
-          @children[*args]
+          block.call self
+          @children.each &block
+          self
         end
       end
     - end
