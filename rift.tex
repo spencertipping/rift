@@ -105,6 +105,7 @@ end \end{rubycode}
 \item{Ruby 1.8-style hashes (e.g.~{\tt \{:foo => :bar\}})}
 \item{Ruby 1.9-style hashes (e.g.~{\tt \{foo:~:bar\}})}
 \item{{\tt do ... end} blocks}
+\item{Heredocs (this kind of hackery can't be generalized away)}
 \item{Braced blocks}
 \item{Destructuring block binds}
 \item{Last-parameter variadic binds}
@@ -136,5 +137,15 @@ Rift.const_set :Tree, Class.new Struct.new(:operation, :children, :source) do
     self
   end
 end \end{rubycode}
+
+\chapter{Low-Level Implementation}
+  Most of Ruby is simple; the complexity arises from the presence of continuations, which are so useful that they should be both available and as performant as is reasonable. However, as many
+  compiler writers know, implementing reentrant continuations efficiently in a lexically-scoped language is something of a challenge. Some of the challenge is alleviated by using CPS
+  conversion, but this creates many closure variables and long-scope accesses.
+
+\chapter{x86-64 Assembler}
+  Rift-core will end up being implemented in x86-64 assembly, though thankfully this process is automated. This set of assembler classes provides the facility to generate and link low-level
+  code using the x86-64 instruction set. This is then either wrapped in an ELF container (useful for generating self-contained executables) or referenced as the implementation of a {\tt
+  Method}. For simplicity's sake I've separated the ELF wrapper from the assembler modules, even though they share a source directory.
 
 \end{document}
