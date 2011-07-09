@@ -1,5 +1,5 @@
-Ruby in Functional Terms
-========================
+RIFT: Ruby in Functional Terms
+==============================
 
 Introduction
 ------------
