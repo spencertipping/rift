@@ -1,0 +1,23 @@
+X86-64 calling convention.
+The regular GCC calling convention for x86-64 is almost what we want. The only differences are that (1) we need to pass control to the next continuation (as opposed to the usual return
+address), and (2) we need to pass pointers to the lexical and dynamic invocation contexts.
+
+Because we have a dynamic calling context, we no longer need a call stack; therefore, %rsp is a pointer to the current dynamic context structure. Any caller is allowed to allocate a new one;
+doing this will allow the caller to override things like exception-handling continuations and any dynamically-scoped variables.
+
+Dynamic invocation context.
+This exists to store the following information:
+
+| 1. Return continuation stack pointer. Each entry is a closure identifier (see below).
+  2. Exception table. This is a hashtable that maps v-class pointers to closure pointers.
+  3. Dynamic variable table. This is consulted before method lookups are performed. If null, the table is not used. (Ruby has no dynamic variables, so this table is unused in Ruby.)
+
+Here's the memory layout:
+
+| 1. Pointer to dynamic context v-class (this makes dynamic contexts accessible from Ruby code).
+  2. Pointer to exception hashtable, which is also an object. This is stored under the instance variable '@exception_continuations'.
+  3. Pointer to dynamic variable hashtable, which is also an object. This is stored as '@dynamic_variables'.
+
+Closure identifiers.
+A closure identifier is a single 64-bit value whose low 32 bits identify the call address and whose high 32 bits identify the lexical context address. The lexical context address is always
+relative to the beginning of the code segment.

@@ -1,0 +1,13 @@
+Reference literature.
+A number of publications and projects were consulted during the design and implementation of this system, presented in no particular order:
+
+| Agner Fog         "Software optimization resources"                                        available from http://agner.org/optimize/
+  Tobjorn Granlund  "Instruction latencies and throughput for AMD and Intel x86 processors"  available from http://gmplib.org/~tege/x86-timing.pdf
+  Jeffrey Siskind   "Flow-Directed Lightweight Closure Conversion"                           available from ftp://128.46.154.21/qobi/99-105.pdf
+  Intel, Inc.       "Intel 64 and IA-32 Architectures Software Developer's Manual"           available from http://www.intel.com/products/processor/manuals/
+  Google, Inc.      V8 Javascript compiler source code                                       available from http://code.google.com/p/v8/downloads/list
+  Mike Pall         LuaJIT Lua compiler source code                                          available from http://luajit.org/download.html
+  Koichi Sasada     YARV source code                                                         available from http://www.ruby-lang.org/en/downloads/
+  Engine Yard, Inc. Rubinius source code                                                     available from https://github.com/rubinius/rubinius
+  LtU forum         "Have tracing JIT compilers won?"                                        available from http://lambda-the-ultimate.org/node/3851
+  Doug Lea          dlmalloc source code                                                     available from ftp://g.oswego.edu/pub/misc/malloc.c
