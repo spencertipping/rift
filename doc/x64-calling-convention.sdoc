@@ -9,28 +9,39 @@ Dynamic invocation context.
 Here's the memory layout:
 
 | 1. Pointer to dynamic context v-class (this makes dynamic contexts accessible from Ruby code).
-  2. Pointer to exception hashtable, which is also an object. This is stored under the instance variable '@exception_continuations'.
+  2. Pointer to exception hashtable, which is also an object. This is stored under the instance variable '@exceptions'.
   3. Pointer to dynamic variable hashtable, which is also an object. This is stored as '@dynamic_variables'.
-  4. Pointer to continuation queue, which is an immutable linked list. This is stored as '@continuations'.
+  4. Pointer to continuation stack, which consists of immutable, garbage-collected cons cells. Stored as '@continuations'.
 
-It has methods to perform various operations, such as adding/removing handlers from the exception hashtable, adding/removing dynamic variables, and adding/removing continuations from the
-queue.
+Note that the continuation stack isn't stored like the regular x86 call stack. The reason is that continuation returns must be garbage collected due to the possibility of re-entry; consider,
+for example, code like this:
 
-  Continuation queue.
+| puts callcc do |cc|
+    @k = cc
+    'returned normally'
+  end
+  # ...
+  @k.call 'used in a re-entrant context'
+
+The dynamic context has methods to perform various operations, such as adding/removing handlers from the exception hashtable, adding/removing dynamic variables, and adding/removing
+continuations from the stack -- however, using these methods in your own code is really dangerous and can cause awful things to happen (keep in mind that the dynamic context is updated
+automatically when you call its methods).
+
+  Continuation stack.
   This is used to process the return value of a virtual method call. For instance:
 
   | x = puts 'foo'
 
-  Here, the literal 'foo' signals that a string should be constructed; this is then passed into the 'puts' method (a virtual call). After doing this, the dynamic invocation context's queue
+  Here, the literal 'foo' signals that a string should be constructed; this is then passed into the 'puts' method (a virtual call). After doing this, the dynamic invocation context's stack
   gets the continuation 'x = _' prepended onto it. This basically forms a return address.
 
   Tail call optimization.
-  Sometimes no continuation is pushed onto the queue. If there is no subsequent statement (i.e. the continuation that we would have pushed is trivial), then no new continuation is created;
-  instead, the one already at the front of the queue is used.
+  Sometimes no continuation is pushed onto the stack. If there is no subsequent statement (i.e. the continuation that we would have pushed is trivial), then no new continuation is created;
+  instead, the one already at the front of the stack is used.
 
   Each continuation has a link both to its implementation code and to its closure environment. Continuations exist as garbage-collectible entities (important for the next section).
 
   Re-entrant continuations.
-  call/cc creates a reference to its current continuation, which is just the head of the @continuations queue after the new continuation is appended. Because the queue consists of immutable
+  call/cc creates a reference to its current continuation, which is just the head of the @continuations stack after the new continuation is appended. Because the stack consists of immutable
   cons cells, it's possible to return to this point later on. The exact procedure is simply to set the @continuations pointer to the one you want to resume from and then specify a return
-  value.
+  value. The continuation you want to use will be saved in memory because you're holding a reference to it.
