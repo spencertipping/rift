@@ -1,4 +1,4 @@
-X86-64 calling convention.
+X86-64 implementation.
 The regular GCC calling convention for x86-64 is almost what we want. The only differences are that (1) we need to pass control to the next continuation (as opposed to the usual return
 address), and (2) we need to pass pointers to the lexical and dynamic invocation contexts.
 
@@ -8,7 +8,12 @@ doing this will allow the caller to override things like exception-handling cont
 Lexical context.
 Here's the memory layout:
 
-| 1. 
+| 1. Pointer to closure-specific lexical context v-class.
+  2. Array of pointers to all referenced parent contexts. This is stored inline, and accessible via the 'parent(n)' method.
+  3. Array of local variable values. This is also stored inline and accessible via the '[:name]' method.
+
+In addition to these fields, lexical contexts can resolve parent variables using the 'scope_for(:name)' and 'resolve(:name)' methods. (The [] method doesn't do any parent resolution for
+performance purposes.)
 
 Dynamic invocation context.
 Here's the memory layout:
@@ -51,3 +56,10 @@ automatically when you call its methods).
   call/cc creates a reference to its current continuation, which is just the head of the @continuations stack after the new continuation is appended. Because the stack consists of immutable
   cons cells, it's possible to return to this point later on. The exact procedure is simply to set the @continuations pointer to the one you want to resume from and then specify a return
   value. The continuation you want to use will be saved in memory because you're holding a reference to it.
+
+Continuations.
+A continuation is just a pair of a lexical context and an unbound-code reference. This is a class of its own:
+
+| 1. Pointer to continuation v-class.
+  2. Pointer to lexical context (accessible as '@context').
+  3. Pointer to unbound code reference (accessible as '@code').

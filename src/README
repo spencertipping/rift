@@ -1,1 +1,9 @@
-See the 'doc' directory for high-level implementation information.
+Go away!
+
+Just kidding. What I mean to say is this. If you're in this directory because:
+
+1. You want to see how this project is organized, or ...
+2. You want to see the juicy details of JIT...
+
+then you should start with ../doc/introduction.sdoc. This starts off with a
+high-level overview of what's what and will point you in the right direction.
