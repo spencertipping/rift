@@ -5,6 +5,11 @@ address), and (2) we need to pass pointers to the lexical and dynamic invocation
 Because we have a dynamic calling context, we no longer need a call stack; therefore, %rsp is a pointer to the current dynamic context structure. Any caller is allowed to allocate a new one;
 doing this will allow the caller to override things like exception-handling continuations and any dynamically-scoped variables.
 
+Lexical context.
+Here's the memory layout:
+
+| 1. 
+
 Dynamic invocation context.
 Here's the memory layout:
 
@@ -33,7 +38,8 @@ automatically when you call its methods).
   | x = puts 'foo'
 
   Here, the literal 'foo' signals that a string should be constructed; this is then passed into the 'puts' method (a virtual call). After doing this, the dynamic invocation context's stack
-  gets the continuation 'x = _' prepended onto it. This basically forms a return address.
+  gets the continuation '\y -> x = y' prepended onto it. This basically forms a return address. That continuation will be invoked, and its result is then passed to the next continuation on the
+  stack (the bottom of the stack has the continuation \x -> exit 0, which never returns).
 
   Tail call optimization.
   Sometimes no continuation is pushed onto the stack. If there is no subsequent statement (i.e. the continuation that we would have pushed is trivial), then no new continuation is created;

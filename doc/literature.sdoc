@@ -11,3 +11,4 @@ A number of publications and projects were consulted during the design and imple
   Engine Yard, Inc. Rubinius source code                                                     available from https://github.com/rubinius/rubinius
   LtU forum         "Have tracing JIT compilers won?"                                        available from http://lambda-the-ultimate.org/node/3851
   Doug Lea          dlmalloc source code                                                     available from ftp://g.oswego.edu/pub/misc/malloc.c
+  Martin Odersky    scala.collection.immutable.HashMap source                                available from https://lampsvn.epfl.ch/trac/scala/browser/scala/tags/R_2_9_0_1/src//library/scala/collection/immutable/HashMap.scala#L1
