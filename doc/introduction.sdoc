@@ -21,7 +21,30 @@ Here's how Rift is built:
   3. As a final integration test, bin/rift-linux-x64.pre is run exactly as bin/rift-linux-x64.boot was, producing bin/rift-linux-x64. This should be identical to bin/rift-linux-x64.pre; if
      not, then the JIT compiler isn't transparent under Ruby semantics.
 
-Design.
+Contents.
+Most of the high-level stuff is contained in this doc/ directory. Here's what each file documents (listed in the recommended reading order):
+
+| literature.sdoc
+  Background reading (useful if you're new to compiler writing, as I was when I started this project). I highly recommend consulting this if something in the source code doesn't make sense;
+  there's a lot of fairly esoteric functional stuff going on.
+
+| x64-compiler.sdoc
+  A fairly detailed low-level design of the initial x86-64 compiler. This particular compiler generates unoptimized code that is then traced and given to the optimizer when a hotspot is
+  identified. However, the details of this compiler are very important because the structures that it uses are accessed as Ruby classes by the optimizer.
+
+| compiler.sdoc
+  Discusses unoptimized compilation at a high level. This includes talking about the parser, lexical scope analyzer, CPS converter, etc. After reading this and x64-compiler.sdoc, the process
+  by which Rift interprets stuff (without traced optimization) should mostly make sense.
+
+| stdlib.sdoc
+  Talks about the design decisions behind the standard library, and in particular where it deviates from the one implemented by MRI/YARV. For low-level implementation details such as
+  performance bounds, the individual source files are your best bet. Each method contains a description of its time and space complexity in the comments.
+
+| x64-optimizer.sdoc
+  A fairly detailed low-level design of the x86-64 tracer and optimizer. Discusses the kinds of processor-specific optimizations that get performed, along with the assumptions required to
+  perform them. Also goes into details about the internals of the JIT system.
+
+Implementation biases.
 As the name suggests, I decided to interpret Ruby in a different way than it's normally done. First, I'm emphasizing functional constructs and performance over object-oriented stuff. This
 means that closure allocation and local variable access are really fast, full re-entrant continuations are supported and are also fast, and a lot of compiler internals are available for you to
 use from the standard library.
