@@ -6,18 +6,31 @@ Because we have a dynamic calling context, we no longer need a call stack; there
 doing this will allow the caller to override things like exception-handling continuations and any dynamically-scoped variables.
 
 Dynamic invocation context.
-This exists to store the following information:
-
-| 1. Return continuation stack pointer. Each entry is a closure identifier (see below).
-  2. Exception table. This is a hashtable that maps v-class pointers to closure pointers.
-  3. Dynamic variable table. This is consulted before method lookups are performed. If null, the table is not used. (Ruby has no dynamic variables, so this table is unused in Ruby.)
-
 Here's the memory layout:
 
 | 1. Pointer to dynamic context v-class (this makes dynamic contexts accessible from Ruby code).
   2. Pointer to exception hashtable, which is also an object. This is stored under the instance variable '@exception_continuations'.
   3. Pointer to dynamic variable hashtable, which is also an object. This is stored as '@dynamic_variables'.
+  4. Pointer to continuation queue, which is an immutable linked list. This is stored as '@continuations'.
 
-Closure identifiers.
-A closure identifier is a single 64-bit value whose low 32 bits identify the call address and whose high 32 bits identify the lexical context address. The lexical context address is always
-relative to the beginning of the code segment.
+It has methods to perform various operations, such as adding/removing handlers from the exception hashtable, adding/removing dynamic variables, and adding/removing continuations from the
+queue.
+
+  Continuation queue.
+  This is used to process the return value of a virtual method call. For instance:
+
+  | x = puts 'foo'
+
+  Here, the literal 'foo' signals that a string should be constructed; this is then passed into the 'puts' method (a virtual call). After doing this, the dynamic invocation context's queue
+  gets the continuation 'x = _' prepended onto it. This basically forms a return address.
+
+  Tail call optimization.
+  Sometimes no continuation is pushed onto the queue. If there is no subsequent statement (i.e. the continuation that we would have pushed is trivial), then no new continuation is created;
+  instead, the one already at the front of the queue is used.
+
+  Each continuation has a link both to its implementation code and to its closure environment. Continuations exist as garbage-collectible entities (important for the next section).
+
+  Re-entrant continuations.
+  call/cc creates a reference to its current continuation, which is just the head of the @continuations queue after the new continuation is appended. Because the queue consists of immutable
+  cons cells, it's possible to return to this point later on. The exact procedure is simply to set the @continuations pointer to the one you want to resume from and then specify a return
+  value.
