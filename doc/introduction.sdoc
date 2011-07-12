@@ -28,13 +28,21 @@ Most of the high-level stuff is contained in this doc/ directory. Here's what ea
   Background reading (useful if you're new to compiler writing, as I was when I started this project). I highly recommend consulting this if something in the source code doesn't make sense;
   there's a lot of fairly esoteric functional stuff going on.
 
-| x64-compiler.sdoc
-  A fairly detailed low-level design of the initial x86-64 compiler. This particular compiler generates unoptimized code that is then traced and given to the optimizer when a hotspot is
-  identified. However, the details of this compiler are very important because the structures that it uses are accessed as Ruby classes by the optimizer.
+| boot-core.sdoc
+  Talks about the core language that the compiler handles. This is a simplified subset of Ruby that eliminates a bunch of complexity. I also talk a bit about where the standard library picks
+  up, which is further discussed in boot-stdlib.sdoc.
 
 | compiler.sdoc
   Discusses unoptimized compilation at a high level. This includes talking about the parser, lexical scope analyzer, CPS converter, etc. After reading this and x64-compiler.sdoc, the process
   by which Rift interprets stuff (without traced optimization) should mostly make sense.
+
+| x64-compiler.sdoc
+  A fairly detailed low-level design of the initial x86-64 compiler. This particular compiler generates unoptimized code that is then traced and given to the optimizer when a hotspot is
+  identified. However, the details of this compiler are very important because the structures that it uses are accessed as Ruby classes by the optimizer.
+
+| x64-gc.sdoc
+  Gory details of the garbage collector for x86-64. It's callable as a method on Rift::Kernel and runs automatically when the heap is full. This is an implementation detail more than an API
+  that gets used elsewhere, so there isn't a particular reason to read it unless you're interested to see how Rift collects garbage.
 
 | stdlib.sdoc
   Talks about the design decisions behind the standard library, and in particular where it deviates from the one implemented by MRI/YARV. For low-level implementation details such as

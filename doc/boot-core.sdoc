@@ -1,0 +1,18 @@
+Core bootstrapping language.
+This language is used to bootstrap the Rift binary and provide a basis for talking to the compiler. It supports the minimal set of features required to run a language similar to Ruby, and
+largely avoids the noise that is introduced by more advanced Ruby features.
+
+There are four main things this bootstrap language understands:
+
+| 1. Method calls.
+  2. The block forms for closures. (Deliberately phrased this way, since methods are also closures.)
+  3. Order of evaluation.
+  4. Syntax for various kinds of literals (these are translated into constructor invocations).
+
+Things that are conspicuously /not/ supported:
+
+| 1. if, for, while, until, case, rescue, etc.
+  2. Declarative syntax for creating classes, modules, and methods.
+  3. Lots of Kernel methods, and most internal primitive classes.
+
+It also comes with a very minimal set of classes, each with a minimal set of methods.

@@ -1,9 +1,14 @@
-X86-64 implementation.
+X86-64 static compiler.
+This compiler doesn't optimize stuff. It just provides a basis for behavior and makes as much stuff as possible into first-class objects.
+
+Purpose.
+This compiler is really more of an interpreter for Ruby code. The only reason it compiles to machine code is to act as a bootstrap layer so that I don't have to write anything in C/C++. (See
+doc/introduction.sdoc for information about how this bootstrapping works.) That said, even this unoptimizing compiler should run Ruby quite a bit faster than MRI or YARV. Hotspots then get
+further optimized by tracing and doing proper register allocation and other fun stuff.
+
+Non-standard calling convention.
 The regular GCC calling convention for x86-64 is almost what we want. The only differences are that (1) we need to pass control to the next continuation (as opposed to the usual return
 address), and (2) we need to pass pointers to the lexical and dynamic invocation contexts.
-
-Because we have a dynamic calling context, we no longer need a call stack; therefore, %rsp is a pointer to the current dynamic context structure. Any caller is allowed to allocate a new one;
-doing this will allow the caller to override things like exception-handling continuations and any dynamically-scoped variables.
 
 Lexical context.
 Here's the memory layout:
