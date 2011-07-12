@@ -1,0 +1,28 @@
+#!/bin/bash
+#
+# Builds all of the assembly examples with various levels of optimization.
+
+gcc='g++ -Wall -Wextra -static -lm'
+
+compile() {
+  name=$1
+  output=$2
+  shift
+  shift
+
+  $gcc "$@" $name.cc -S -o $name/$output.s &&
+  $gcc "$@" $name.cc    -o $name/$output
+}
+
+names=$(ls *.cc | sed 's/\.cc//g')
+for name in $names; do
+  echo -ne " \033[1;30m::\033[0;0m building $name "
+
+  rm $name/*
+  mkdir -p $name
+
+  compile $name o0 -O0 &&
+  compile $name o1 -O1 &&
+  compile $name o2 -O2 &&
+  compile $name o3 -O3 && echo -e '\033[1;32mok\033[0;0m'
+done

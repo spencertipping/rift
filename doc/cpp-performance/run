@@ -1,0 +1,8 @@
+#!/bin/bash
+#
+# Run a specific example at all optimization levels.
+
+echo '-O0:'; time ./$1/o0
+echo '-O1:'; time ./$1/o1
+echo '-O2:'; time ./$1/o2
+echo '-O3:'; time ./$1/o3

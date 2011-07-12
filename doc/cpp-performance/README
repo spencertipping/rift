@@ -1,2 +1,19 @@
 This directory contains C++ programs and corresponding assembly files. I use it
 to determine the ideal compilation cases for various kinds of programs.
+
+Depending on what you're looking for, it may be useful to use Radare or some
+other disassembler on the final linked executables.
+
+To use these examples, see the 'build' and 'run' scripts. 'build' rebuilds all
+of the examples (sorry, no timestamp dependencies yet), and 'run' runs a
+specific one at all optimization levels. For example:
+
+$ ./build
+$ ./run no-virtuals
+-O0:
+time time time time
+-O1:
+time time time time
+-O2:
+time time time time
+$
