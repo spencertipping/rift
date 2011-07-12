@@ -2,7 +2,7 @@
 #
 # Builds all of the assembly examples with various levels of optimization.
 
-gcc='g++ -Wall -Wextra -static -lm'
+gcc='g++ -Wall -Wextra -lm'
 
 compile() {
   name=$1
