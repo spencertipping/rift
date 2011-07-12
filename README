@@ -1,5 +1,5 @@
 Rift: Ruby in Functional Terms
-This is a tracing Ruby JIT compiler that I wrote for my wife's birthday. (I
-asked her what she wanted, and she said this.)
+This is a tracing Ruby JIT compiler that I wrote for my wife's birthday.
+(I asked her what she wanted, and she said this.)
 
 See doc/introduction.sdoc for information about how to use and hack on it.
