@@ -1,2 +1,2 @@
 This directory contains a bunch of tests designed to measure performance of
-specific features of Ruby runtimes.
+specific features of Ruby runtimes. Each one is runnable without arguments.
