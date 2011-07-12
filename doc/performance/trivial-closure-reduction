@@ -1,0 +1,36 @@
+#!/usr/bin/env ruby
+#
+# Does Ruby skip trivial closure frames?
+#
+# Test: Create a shallow closure, then a deep one with many intermediate frames
+#       each of which has no variables. If local variable access in the shallow
+#       closure is faster, then Ruby doesn't skip trivial closure frames.
+
+def make_shallow_adder x
+  lambda {|y| x + y}
+end
+
+def make_deep_adder x
+  intermediate_frame_1 = lambda do
+    intermediate_frame_2 = lambda do
+      intermediate_frame_3 = lambda do
+        intermediate_frame_4 = lambda do
+          lambda {|y| x + y}
+        end
+        intermediate_frame_4.call
+      end
+      intermediate_frame_3.call
+    end
+    intermediate_frame_2.call
+  end
+  intermediate_frame_1.call
+end
+
+Shallow = make_shallow_adder 100
+Deep    = make_deep_adder 100
+
+require 'benchmark'
+Benchmark.benchmark do |b|
+  total = 0; b.report('shallow') {10000000.times {total += Shallow.call 5}}
+  total = 0; b.report('deep')    {10000000.times {total += Deep.call 5}}
+end

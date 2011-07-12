@@ -29,17 +29,18 @@ end
 
 as = (1 ... 1000000).map {A.new}
 bs = (1 ... 1000000).map {B.new}
+cs = (1 ... 1000000).map {C.new}
+ds = (1 ... 1000000).map {D.new}
+es = (1 ... 1000000).map {E.new}
 fs = (1 ... 1000000).map {F.new}
 
 require 'benchmark'
 
-Benchmark.bm(7) do |b|
-  total = 0
-  b.report('immediate dispatch') {as.each {|a| total += a.to_s.size}}
-
-  total = 0
-  b.report('short chain dispatch') {bs.each {|b| total += b.to_s.size}}
-
-  total = 0
-  b.report('long chain dispatch') {fs.each {|f| total += f.to_s.size}}
+Benchmark.benchmark do |b|
+  total = 0; b.report('immediate dispatch')     {as.each {|a| total += a.to_s.size}}
+  total = 0; b.report('first parent dispatch')  {bs.each {|b| total += b.to_s.size}}
+  total = 0; b.report('second parent dispatch') {cs.each {|c| total += c.to_s.size}}
+  total = 0; b.report('third parent dispatch')  {ds.each {|d| total += d.to_s.size}}
+  total = 0; b.report('fourth parent dispatch') {es.each {|e| total += e.to_s.size}}
+  total = 0; b.report('fifth chain dispatch')   {fs.each {|f| total += f.to_s.size}}
 end

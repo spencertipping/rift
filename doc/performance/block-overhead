@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+#
+# How much overhead is associated with executing a block?
+#
+# Test: Manually inline a block and determine how much of a performance impact
+#       this has.
+
+total = 0
+Increment = lambda do
+  total += 1
+end
+
+require 'benchmark'
+Benchmark.benchmark do |b|
+  total = 0; b.report('block')  {10000000.times {Increment.call}}
+  total = 0; b.report('inline') {10000000.times {total += 1}}
+end
