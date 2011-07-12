@@ -21,52 +21,17 @@ Core classes and methods.
 I don't list these here; rather, this just goes over the rationale for their existence and how they are constructed. The core classes are implemented in Ruby, but their methods are bound to
 pre-written machine language snippets.
 
-Implementation biases.
-As the name suggests, I decided to interpret Ruby in a different way than it's normally done. First, I'm emphasizing functional constructs and performance over object-oriented stuff. This
-means that closure allocation and local variable access are really fast, full re-entrant continuations are supported and are also fast, and a lot of compiler internals are available for you to
-use from the standard library.
+Because no conditionals exist, each object provides 'if_true' and 'if_false' methods. These are used to determine truthiness of various things, and can be overridden if you want to emulate
+other languages. For example, here's a common conditional statement and its equivalent boot-core representation:
 
-Second, Rift isn't really Ruby. Specifically, it's a function that produces Ruby-ish interpreters and compilers. To be exact, Rift lets you change the way Ruby behaves at a much lower level
-than most programmers are used to. So, for example, the 'class' and 'def' constructs were added to the base language after the fact:
+if defined? foo                 defined?(foo).if_true do
+  puts 'defined!'                 puts 'defined!'
+end                             end
 
-normal_ruby = Rift::Compiler.new do
-  block_form 'class :name', :name => Rift::Tree::Constant do
-    self.const_set name, Class.new &body
-  end
+This is one of the reasons that closures need to be really fast. Similarly, you can build simple iteration constructs like this:
 
-  block_form 'class :name < :base', :name => Rift::Tree::Constant, :base => Rift::Tree::Expression do
-    self.const_set name, Class.new(base, &body)
-  end
+while foo                       lambda {foo}.while_true do
+  puts 'foo is true!'             puts 'foo is true!'
+end                             end
 
-  block_form 'class << :expression', :expression => Rift::Tree::Expression do
-    expression.singleton_class.class_eval &body
-  end
 
-  create_a_method = lambda do
-    self.define_method method, Rift::Compiler.compile_method(formals, body)
-    self
-  end
-
-  block_form 'def :method :formals',  :method => Rift::Tree::Identifier, :formals => Rift::Tree::Formals, &create_a_method
-  block_form 'def :method(:formals)', :method => Rift::Tree::Identifier, :formals => Rift::Tree::Formals, &create_a_method
-end
-
-You can then replace the normal Kernel#require method (though there are less heavy-handed ways to achieve a similarly convenient API):
-
-class Kernel
-  def require file
-    normal_ruby.require file
-  end
-end
-
-On top of this, you can add your own operators and other syntactic forms. Please don't misuse this flexibility! You're probably best off not using it at all, but in the spirit of flexibility
-that made Rails a ghetto I'm making it available as a feature if you want to use it.
-
-  Important differences from MRI/YARV.
-  Rift isn't 100% compliant as a Ruby implementation, though most of the incompatibilies aren't particularly noticeable. Here are some of the big ones:
-
-  | 1. Rift doesn't expose a C API. You can use Rift::FFI classes to call external C libraries, but there isn't a straightforward way to call back from C or C++.
-    2. Everything is a closure. Class bodies, method bodies, etc. are all lexically scoped and can refer to surrounding variables.
-    3. You can now subclass Class, and the Rift standard library contains several such subclasses.
-    4. No guarantees at all are made about the binary representation of objects.
-    5. The class hierarchy may differ from the MRI/YARV standard, though it should be compatible (i.e. parent relationships should be preserved through transitivity).

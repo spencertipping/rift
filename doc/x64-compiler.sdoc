@@ -24,9 +24,10 @@ Dynamic invocation context.
 Here's the memory layout:
 
 | 1. Pointer to dynamic context v-class (this makes dynamic contexts accessible from Ruby code).
-  2. Pointer to exception hashtable, which is also an object. This is stored under the instance variable '@exceptions'.
-  3. Pointer to dynamic variable hashtable, which is also an object. This is stored as '@dynamic_variables'.
-  4. Pointer to continuation stack, which consists of immutable, garbage-collected cons cells. Stored as '@continuations'.
+  2. Pointer to implicit receiver, stored as '@receiver'.
+  3. Pointer to exception hashtable, which is also an object. Stored as '@exceptions'.
+  4. Pointer to dynamic variable hashtable, which is also an object. This is stored as '@dynamic_variables'.
+  5. Pointer to continuation stack, which consists of immutable, garbage-collected cons cells. Stored as '@continuations'.
 
 Note that the continuation stack isn't stored like the regular x86 call stack. The reason is that continuation returns must be garbage collected due to the possibility of re-entry; consider,
 for example, code like this:
@@ -53,7 +54,8 @@ automatically when you call its methods).
 
   Tail call optimization.
   Sometimes no continuation is pushed onto the stack. If there is no subsequent statement (i.e. the continuation that we would have pushed is trivial), then no new continuation is created;
-  instead, the one already at the front of the stack is used.
+  instead, the one already at the front of the stack is used. More formally, a binary 'sequence' operator will cause a new continuation to be pushed, and the last statement in a method has no
+  such operator surrounding it. (See doc/compiler.sdoc for details.)
 
   Each continuation has a link both to its implementation code and to its closure environment. Continuations exist as garbage-collectible entities (important for the next section).
 

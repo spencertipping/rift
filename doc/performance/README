@@ -1,0 +1,2 @@
+This directory contains a bunch of tests designed to measure performance of
+specific features of Ruby runtimes.

@@ -24,10 +24,6 @@ Here's how Rift is built:
 Contents.
 Most of the high-level stuff is contained in this doc/ directory. Here's what each file documents (listed in the recommended reading order):
 
-| literature.sdoc
-  Background reading (useful if you're new to compiler writing, as I was when I started this project). I highly recommend consulting this if something in the source code doesn't make sense;
-  there's a lot of fairly esoteric functional stuff going on.
-
 | boot-core.sdoc
   Talks about the core language that the compiler handles. This is a simplified subset of Ruby that eliminates a bunch of complexity. I also talk a bit about where the standard library picks
   up, which is further discussed in boot-stdlib.sdoc.
@@ -51,3 +47,10 @@ Most of the high-level stuff is contained in this doc/ directory. Here's what ea
 | x64-optimizer.sdoc
   A fairly detailed low-level design of the x86-64 tracer and optimizer. Discusses the kinds of processor-specific optimizations that get performed, along with the assumptions required to
   perform them. Also goes into details about the internals of the JIT system.
+
+| biases.sdoc
+  Details the various biases I had while writing Rift, and why certain design choices were made.
+
+| literature.sdoc
+  Background reading (useful if you're new to compiler writing, as I was when I started this project). I highly recommend consulting this if something in the source code doesn't make sense;
+  there's a lot of fairly esoteric functional stuff going on.

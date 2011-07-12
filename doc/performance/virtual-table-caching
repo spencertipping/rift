@@ -1,0 +1,45 @@
+#!/usr/bin/env ruby
+#
+# Does Ruby cache the results of virtual method lookups?
+#
+# Test: Define two classes A and B. A's inheritance chain is much shorter than
+#       B's. If it takes longer to resolve methods on B, then Ruby probably
+#       does not perform virtual method caching.
+
+class A < Object
+  def to_s
+    'foo'
+  end
+end
+
+class B < A
+end
+
+class C < B
+end
+
+class D < C
+end
+
+class E < D
+end
+
+class F < E
+end
+
+as = (1 ... 1000000).map {A.new}
+bs = (1 ... 1000000).map {B.new}
+fs = (1 ... 1000000).map {F.new}
+
+require 'benchmark'
+
+Benchmark.bm(7) do |b|
+  total = 0
+  b.report('immediate dispatch') {as.each {|a| total += a.to_s.size}}
+
+  total = 0
+  b.report('short chain dispatch') {bs.each {|b| total += b.to_s.size}}
+
+  total = 0
+  b.report('long chain dispatch') {fs.each {|f| total += f.to_s.size}}
+end

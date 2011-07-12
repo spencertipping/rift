@@ -11,4 +11,34 @@ Nomenclature aside, here is how the dynamic stuff is implemented.
 
 Virtual methods.
 This is by far the largest challenge. It isn't challenging because it's particularly complex; rather, carelessly-considered implementations are likely to be slow. One such implementation is
-MRI, which is notoriously sluggish.
+MRI, which is notoriously sluggish. Rift is biased in favor of fast method lookup. As such, defining new methods or changing methods' definitions is expensive, and invoking methods is
+constant-time in the depth of the inheritance hierarchy. (As an unfortunate consequence, creating singleton classes is O(n) in the number of methods on the object.) This is done by maintaining
+a hashtable of pre-resolved virtual method calls. The table is structured like this:
+
+| hash(class, method) -> continuation
+
+The continuation that ends up being invoked is bound to the object at invocation-time by setting the dynamic context's implicit receiver.
+
+Note that using this hashtable isn't exactly a cure-all for method lookups. In particular, it's highly subject to cache misses and other undesirable locality characteristics. However, it
+should be really fast in most cases (about as fast as a C++ v-table, I imagine).
+
+The only other thing I should mention is that classes need to do their part to keep this hashtable up to date. In particular, this means:
+
+| 1. A new method on class A means that each subclass of A needs its cached method table updated as well.
+  2. A new class A < B must have its initial method table copied from B.
+  3. If a class gets removed, all of its methods need to be removed.
+
+Singleton classes.
+Normally, objects aren't instances of a singleton class at all. So, for instance, if you have code like this:
+
+class Foo
+end
+f = Foo.new
+g = Foo.new
+
+The class IDs of f and g are identical, and no singleton classes exist. However, if you invoke the 'singleton_class' method or use the 'class <<' syntax, then a new class is built and the
+instance's class ID is changed to the new singleton class.
+
+Class IDs.
+Each object has a class ID associated with it. This class ID is then hashed together with a method ID to result in a v-table index, which points to the implementation of that method for that
+class.

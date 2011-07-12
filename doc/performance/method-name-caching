@@ -1,0 +1,44 @@
+#!/usr/bin/env ruby
+#
+# Does Ruby cache the hashed values of method names?
+#
+# Test: Use polymorphic invocation with two pairs of classes. The first pair
+#       dispatches on the 'a' method (which has a short name, so it should hash
+#       quickly), and the second pair dispatches on a method whose name is
+#       significantly longer.
+
+class ShortA
+  def a x
+    x + 1
+  end
+end
+
+class ShortB
+  def a x
+    x * 2
+  end
+end
+
+class LongA
+  def a_much_longer_name_zomg_bbq_booyah_woot_i_wonder_whether_the_hash_of_this_symbol_gets_cached_or_not x
+    x + 1
+  end
+end
+
+class LongB
+  def a_much_longer_name_zomg_bbq_booyah_woot_i_wonder_whether_the_hash_of_this_symbol_gets_cached_or_not x
+    x * 2
+  end
+end
+
+short_instances = (1 ... 1000000).map {|i| ((i & 1).zero? ? ShortA : ShortB).new}
+long_instances  = (1 ... 1000000).map {|i| ((i & 1).zero? ? LongA  : LongB).new}
+
+require 'benchmark'
+Benchmark.bm(7) do |b|
+  total = 0
+  b.report('short dispatch') {short_instances.each {|x| total += x.a 1}}
+
+  total = 0
+  b.report('long dispatch') {long_instances.each {|x| total += x.a_much_longer_name_zomg_bbq_booyah_woot_i_wonder_whether_the_hash_of_this_symbol_gets_cached_or_not 1}}
+end
