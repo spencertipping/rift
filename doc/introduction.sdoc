@@ -54,3 +54,9 @@ Most of the high-level stuff is contained in this doc/ directory. Here's what ea
 | literature.sdoc
   Background reading (useful if you're new to compiler writing, as I was when I started this project). I highly recommend consulting this if something in the source code doesn't make sense;
   there's a lot of fairly esoteric functional stuff going on.
+
+| ruby-performance/
+  A directory of tests run against existing Ruby implementations to determine the overhead of various operations.
+
+| cpp-performance/
+  A directory of programs compiled by g++, with their corresponding assembly code. This is used as a reference for ideal runtimes.

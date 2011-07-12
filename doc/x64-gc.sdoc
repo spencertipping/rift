@@ -1,0 +1,8 @@
+X86-64 garbage collection details.
+When Rift starts up, the first thing it does is mmap() a region for the core image. This image is then used for both data and code. %rsp is then set to the highest available address, and it
+progresses downwards towards the bottom of the region:
+
+| ------------------------------------------------------------
+  |   old generation    |    new generation    |   permgen   |
+  ------------------------------------------------------------
+                                               ^ initial %rsp
