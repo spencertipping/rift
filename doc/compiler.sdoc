@@ -1,0 +1,14 @@
+Compiling Ruby.
+Due to the dynamic nature of Ruby, compiling it may or may not make much sense. However, certain aspects of Ruby are (thankfully) static. These include:
+
+| 1. Code chunks. Ruby presents no API to alter the behavior of a given piece of code.
+  2. By extension, lexically-scoped variables. This can be resolved at parse-time.
+
+Therefore, the compiler is designed to generate low-level logic to handle code while leaving things like class definitions (the dynamic part of Ruby) available for modification. So all things
+considered, it's actually more of an interpreter that precompiles a little bit of stuff.
+
+Nomenclature aside, here is how the dynamic stuff is implemented.
+
+Virtual methods.
+This is by far the largest challenge. It isn't challenging because it's particularly complex; rather, carelessly-considered implementations are likely to be slow. One such implementation is
+MRI, which is notoriously sluggish.

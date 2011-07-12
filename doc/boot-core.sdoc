@@ -17,6 +17,10 @@ Things that are conspicuously /not/ supported:
 
 It also comes with a very minimal set of classes, each with a minimal set of methods.
 
+Core classes and methods.
+I don't list these here; rather, this just goes over the rationale for their existence and how they are constructed. The core classes are implemented in Ruby, but their methods are bound to
+pre-written machine language snippets.
+
 Implementation biases.
 As the name suggests, I decided to interpret Ruby in a different way than it's normally done. First, I'm emphasizing functional constructs and performance over object-oriented stuff. This
 means that closure allocation and local variable access are really fast, full re-entrant continuations are supported and are also fast, and a lot of compiler internals are available for you to
