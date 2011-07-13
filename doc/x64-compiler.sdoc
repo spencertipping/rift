@@ -91,8 +91,8 @@ Untraced code (which is what this compiler generates) knows to use specific regi
 
   | subq $48, %rsp                      # make space for the next continuation and cons cell
     movq cons-vclass, (%rsp)            # set up the continuation link
-    leaq (%rsi), 8(%rsp)                # link to the continuation we just created
-    movq 40(%edi), %rax                 # load the present return continuation pointer into a register
+    leaq 32(%rsp), 8(%rsp)              # link to the continuation we just created
+    movq 40(%rdi), %rax                 # load the present return continuation pointer into a register
     movq 8(%rax), %rax                  # head of cons cell
     movq %rax, 16(%rsp)                 # tail of the new cons cell for the return continuation
     movq continuation-vclass, 24(%rsp)  # setup continuation vclass

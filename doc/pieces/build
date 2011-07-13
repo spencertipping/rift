@@ -1,0 +1,11 @@
+#!/bin/bash
+#
+# Builds all of the examples here.
+
+gcc='g++ -g -Wall -Wextra'
+
+names=$(ls *.s | sed 's/\.s//g')
+for name in $names; do
+  echo -ne " \033[1;30m::\033[0;0m building $name "
+  $gcc $name.s -o compiled/$name && echo -e '\033[1;32mok\033[0;0m'
+done
