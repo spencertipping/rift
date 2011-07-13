@@ -1,0 +1,8 @@
+Standard library design.
+Rift's standard library differs fairly significantly from Ruby's, but not in ways that break much stuff. This file covers some of these design choices.
+
+Subclassing Class.
+The Class class can now be subclassed, and this is done a lot in Rift's standard library. There are several places where this is used:
+
+| 1. Singleton classes are instances of SingletonClass, which is a subclass of Class. SingletonClasses can't be subclassed.
+  2. Many VM-internal classes are instances of NativeClass, which is a subclass of Class and uses a custom memory layout.

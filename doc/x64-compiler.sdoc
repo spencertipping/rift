@@ -104,6 +104,9 @@ Untraced code (which is what this compiler generates) knows to use specific regi
     andq hash-index, %rax               # make sure it's within the hashtable bounds
     jmp  (%rax)                         # jump into the method body
 
+  Notice that this is much more convoluted than a normal call-stack setup. When the optimizing trace compiler runs, it eliminates much of this method overhead by determining which
+  continuations actually need to be modeled and which ones can be optimized away. There are a number of optimizations that can be made with respect to continuation frame elimination.
+
 | %rsp
   Heap/stack pointer. This is used for quick memory allocation, and occasionally is reset during garbage collection. (See doc/x64-gc.sdoc for details.) The garbage collector maintains space
   below %rsp so that you can allocate new values without stuff blowing up. %rsp is treated like a usual stack; that is, you can just decrement it manually and be reasonably confident that
