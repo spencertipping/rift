@@ -41,7 +41,7 @@ main:
 
   movq %rsp, %rdi         # set dynamic context pointer
 
-  # Main program prologue: Tail call into next continuation, popping it from the
+  # Main program epilogue: Tail call into next continuation, popping it from the
   # continuation stack in the process.
 
   movq 32(%rdi), %rax     # load continuation stack
