@@ -1,18 +1,21 @@
 # Rift compiler | Spencer Tipping
 # Licensed under the terms of the MIT source code license
 
-Rift = Module.new
-
-Rift.singleton_class.instance_eval do
-  define_method :dependencies do |*xs|
+# Preliminary definitions.
+module Rift
+  # Abstract away the 'require' details. This prevents ugly path manipulation
+  # from appearing in Rift modules.
+  def self.dependencies *xs
     xs.flatten.each do |x|
       dependency x
     end
   end
 
-  define_method :dependency do |filename|
+  def self.dependency filename
     require File.join(File.expand_path(File.dirname(__FILE__)) + '/' + filename)
   end
 end
 
-Rift.dependencies %w(asm.x64)
+# Include major modules, each one of which has sub-dependencies.
+Rift.dependencies %w(
+  asm.x64)
