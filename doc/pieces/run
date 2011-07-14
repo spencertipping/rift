@@ -1,0 +1,8 @@
+#!/bin/bash
+#
+# Runs all of the examples and looks for nonzero exit codes.
+
+for name in compiled/*; do
+  echo -ne " \033[1;30m::\033[0;0m running $name "
+  ./$name && echo -e '\033[1;32mok\033[0;0m' || echo -e "\033[1;31mfail $?\033[0;0m"
+done

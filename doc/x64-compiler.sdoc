@@ -80,37 +80,19 @@ Untraced code (which is what this compiler generates) knows to use specific regi
 
   | movq 16(continuation), %r8          # code pointer
     movq 8(continuation), %rsi          # lexical context pointer
-    jmp  %r8                            # tail-call the continuation
+    jmp  *%r8                           # tail-call the continuation
 
   Note that unless you're writing a tail call you'll probably want to create a return continuation. This is covered next.
 
 | %rdi
   Dynamic frame context pointer. Generally you won't need to change this because calls usually share dynamic contexts. However, all that's involved in changing it is modifying the %rdi
-  register. (You'll probably want to stash the original value somewhere too.) Most %rdi usage is to access the receiver and the continuation stack. For instance, here's how you might make a
-  method call (here the hashing is inlined; in practice it may not be):
-
-  | subq $48, %rsp                      # make space for the next continuation and cons cell
-    movq cons-vclass, (%rsp)            # set up the continuation link
-    leaq 32(%rsp), 8(%rsp)              # link to the continuation we just created
-    movq 40(%rdi), %rax                 # load the present return continuation pointer into a register
-    movq 8(%rax), %rax                  # head of cons cell
-    movq %rax, 16(%rsp)                 # tail of the new cons cell for the return continuation
-    movq continuation-vclass, 24(%rsp)  # setup continuation vclass
-    movq %rsi, 32(%rsp)                 # copy lexical scope
-    movq current-continuation, 40(%rsp) # set up return address
-    movq %rsp, 40(%rdi)                 # link the new continuation into the current dynamic context
-    movq method-index, %rax             # compute the vtable entry
-    xorq (%rbp), %rax                   # hash index into the global vtable
-    andq hash-index, %rax               # make sure it's within the hashtable bounds
-    jmp  (%rax)                         # jump into the method body
-
-  Notice that this is much more convoluted than a normal call-stack setup. When the optimizing trace compiler runs, it eliminates much of this method overhead by determining which
-  continuations actually need to be modeled and which ones can be optimized away. There are a number of optimizations that can be made with respect to continuation frame elimination.
+  register. (You'll probably want to stash the original value somewhere too.) Most %rdi usage is to access the receiver and the continuation stack. See doc/pieces/x64-continuation-* for
+  details about how the dynamic context's continuation stack is updated.
 
 | %rsp
   Heap/stack pointer. This is used for quick memory allocation, and occasionally is reset during garbage collection. (See doc/x64-gc.sdoc for details.) The garbage collector maintains space
   below %rsp so that you can allocate new values without stuff blowing up. %rsp is treated like a usual stack; that is, you can just decrement it manually and be reasonably confident that
   nothing will go wrong (as long as you don't allocate too much memory this way).
 
-| %rax, %rbx, %rcx, %rdx, %r8, %r9, %10, %r11, %r12, %r13, %r14, %r15
+| %rbp, %rax, %rbx, %rcx, %rdx, %r8, %r9, %10, %r11, %r12, %r13, %r14, %r15
   Up for grabs. These registers can be clobbered by continuations and should be initialized prior to use.
