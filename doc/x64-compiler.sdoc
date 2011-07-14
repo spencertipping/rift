@@ -20,15 +20,19 @@ Here's the memory layout:
 In addition to these fields, lexical contexts can resolve parent variables using the 'scope_for(:name)' and 'resolve(:name)' methods. (The [] method doesn't do any parent resolution for
 performance purposes.)
 
+Lexical contexts have nonstandard metaclasses. This means that instance_variable_get and instance_variable_set are disabled, which lets us do some fun stuff with inline storage. Also, the
+fields of a lexical context are immutable; there is no way to add or remove parent scopes, nor is there a way to add or remove local variables. These decisions were made for performance
+reasons, and as a result are baked into the metaclass, which is a subclass of NativeClass. (See doc/stdlib.sdoc for an explanation of NativeClass and other metaclasses.) This results in
+customized method dispatch code.
+
 Dynamic invocation context.
 Here's the memory layout:
 
 | 1. Pointer to dynamic context v-class (this makes dynamic contexts accessible from Ruby code).
-  2. Pointer to implicit receiver, stored as '@receiver'.
-  3. Pointer to exception hashtable, which is also an object. Stored as '@exceptions'.
-  4. Pointer to dynamic variable hashtable, which is also an object. This is stored as '@dynamic_variables'.
-  5. Pointer to continuation stack, which consists of immutable, garbage-collected cons cells. Stored as '@continuations'.
-  6. Pointer to global v-table. Stored as '@global_vtable'.
+  2. Pointer to exception hashtable, which is also an object. Stored as '@exceptions'.
+  3. Pointer to dynamic variable hashtable, which is also an object. This is stored as '@dynamic_variables'.
+  4. Pointer to continuation stack, which consists of immutable, garbage-collected cons cells. Stored as '@continuations'.
+  5. Pointer to global v-table. Stored as '@global_vtable'.
 
 Note that the continuation stack isn't stored like the regular x86 call stack. The reason is that continuation returns must be garbage collected due to the possibility of re-entry; consider,
 for example, code like this:
