@@ -12,6 +12,7 @@ Rift is a self-hosting JIT compiler written entirely in Ruby. Here's the project
                         other syntactic constructs.
   4. src/lib.*          Miscellaneous library functions used by other components.
   5. src/stdlib.*       An implementation of the Ruby standard library in Rift-core.
+  6. src/boot.*         Bootstrapping files for various hosting versions of Ruby. There's one here for use with MRI/YARV, and another assumes that Rift is the host environment.
 
 Here's how Rift is built:
 

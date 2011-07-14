@@ -13,7 +13,15 @@ proxied through the instance_variable_get and instance_variable_set methods:
 
 | class Foo
     def initialize
-      @x = 1            # translated into 'instance_variable_set :"@x", 1
-      @y = 2            # translated into 'instance_variable_set :"@y", 2
+      @x = 1            # translated into instance_variable_set :"@x", 1
+      @y = 2            # translated into instance_variable_set :"@y", 2
     end
   end
+
+Multithreading.
+This Ruby is kind of multithreaded. It is multithreaded in the sense that you can have a program doing two things at the same time. It isn't multithreaded in the sense that no memory is ever
+shared between the two processes. This works by using an Erlang-style shared-nothing setup; each process has its own independent heap space and garbage collector, so the set of references
+between them is always disjoint. (Messages can be passed between processes using copying.)
+
+Also, there's a lot of stuff you can do with continuations and cooperative multithreading. This is one of the big reasons I made sure they performed well. It's also the main reason that all of
+the normal IO operations are internally nonblocking and respond to various continuation-manipulating combinators.

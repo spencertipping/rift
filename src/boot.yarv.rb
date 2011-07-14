@@ -1,4 +1,4 @@
-# Rift compiler | Spencer Tipping
+# Rift compiler YARV interface | Spencer Tipping
 # Licensed under the terms of the MIT source code license
 
 # Preliminary definitions.
@@ -16,6 +16,8 @@ module Rift
   end
 end
 
+# Include fixes for default module behavior.
+Rift.dependencies %w(lib.yarv-fixes)
+
 # Include major modules, each one of which has sub-dependencies.
-Rift.dependencies %w(
-  asm.x64)
+Rift.dependencies %w(asm.x64)

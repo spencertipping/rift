@@ -2,7 +2,8 @@
 # Licensed under the terms of the MIT source code license
 
 Rift.dependencies %w(
-  asm.x64.registers
-  asm.x64.instructions
-  asm.x64.intrinsics
+  asm.x64.struct
+  asm.x64.gc
+
+  asm.x64.structures
   asm.x64.compiler)
