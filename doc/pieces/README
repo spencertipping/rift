@@ -1,3 +1,7 @@
 These are various assembly-level prototype implementations intended for
 reference purposes. I use them to test various ideas and make low-level
 decisions.
+
+Note that these examples are deliberately unoptimized. There are many low-level
+optimizations that would normally be made to assembly code; these are discussed
+further in the implementation source.
