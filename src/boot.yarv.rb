@@ -20,4 +20,4 @@ end
 Rift.dependencies %w(lib.yarv-fixes)
 
 # Include major modules, each one of which has sub-dependencies.
-Rift.dependencies %w(asm.x64)
+Rift.dependencies %w(asm.x64/init)

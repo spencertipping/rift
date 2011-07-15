@@ -8,5 +8,4 @@
 # GC continuation on the GC structure defined in the dynamic context.
 
 class Rift::X64::GenerationalGC
-  extend Rift::X64::NativeClassBacking
 end
