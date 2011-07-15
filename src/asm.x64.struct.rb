@@ -11,12 +11,11 @@ class Rift::X64::Struct
   end
 
   def << field
-    @fields[field] = @size
+    offset = @size
+    singleton_class.class_eval do
+      define_method field.to_sym {offset}
+    end
     @size += 8
     self
-  end
-
-  def [] field
-    @fields[field]
   end
 end
