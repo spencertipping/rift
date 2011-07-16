@@ -13,3 +13,4 @@ A number of publications and projects were consulted during the design and imple
   Doug Lea          dlmalloc source code                                                     available from ftp://g.oswego.edu/pub/misc/malloc.c
   Martin Odersky    scala.collection.immutable.HashMap source                                available from https://lampsvn.epfl.ch/trac/scala/browser/scala/tags/R_2_9_0_1/src//library/scala/collection/immutable/HashMap.scala#L1
   Igor Ostrovsky    "Branch prediction in modern processors"                                 available from http://igoro.com/archive/fast-and-slow-if-statements-branch-prediction-in-modern-processors/
+  Oracle, Inc.      JVM source code                                                          available from http://download.java.net/jdk6/source/

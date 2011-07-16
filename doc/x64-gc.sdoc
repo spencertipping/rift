@@ -6,3 +6,6 @@ progresses downwards towards the bottom of the region:
   |   old generation    |    new generation    |   permgen   |
   ------------------------------------------------------------
                                                ^ initial %rsp
+
+Code tracing and garbage collection.
+The garbage collector normally runs incrementally and compacts memory.
