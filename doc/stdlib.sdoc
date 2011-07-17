@@ -6,17 +6,25 @@ The Class class can now be subclassed, and this is done a lot in Rift's standard
 
 | 1. Singleton classes are instances of SingletonClass, which is a subclass of Class. SingletonClasses can't be subclassed.
   2. Many VM-internal classes are instances of NativeClass, which is a subclass of Class and uses a custom memory layout.
-  3. Any class can be compiled into a CompactedClass, which uses a compact layout for a known set of instance variables.
+  3. Any class can be compiled into a CompactedClass, which uses a compact layout for a known set of instance variables. This is much faster than using regular classes.
 
 Classes get to specify the protocol for accessing local data. This is important both for optimization and for consistency reasons. Specifically, instance variable assignment and access are
 proxied through the instance_variable_get and instance_variable_set methods:
 
-| class Foo
-    def initialize
-      @x = 1            # translated into instance_variable_set :"@x", 1
-      @y = 2            # translated into instance_variable_set :"@y", 2
-    end
+class Foo
+  def initialize
+    @x = 1              # translated into instance_variable_set :"@x", 1
+    @y = 2              # translated into instance_variable_set :"@y", 2
   end
+end
+
+The Class metaclass defines a method 'class' to return itself:
+
+class Foo
+end
+Foo.method(:class)      # lambda {Foo}
+
+SingletonClass leaves the 'class' method untouched; this preserves the usual obj.class value even when obj's real class ID is a singleton class. (See below for details.)
 
 Multithreading.
 This Ruby is kind of multithreaded. It is multithreaded in the sense that you can have a program doing two things at the same time. It isn't multithreaded in the sense that no memory is ever
@@ -25,3 +33,5 @@ between them is always disjoint. (Messages can be passed between processes using
 
 Also, there's a lot of stuff you can do with continuations and cooperative multithreading. This is one of the big reasons I made sure they performed well. It's also the main reason that all of
 the normal IO operations are internally nonblocking and respond to various continuation-manipulating combinators.
+
+Because multithreading is a hard problem, I'm putting it off for a while until I get the core semantics working.
