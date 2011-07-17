@@ -1,0 +1,2 @@
+X86-64 data structures.
+These are implemented as pre-inlined assembly macros -- sort of like C++ templates whose variables are things like registers.

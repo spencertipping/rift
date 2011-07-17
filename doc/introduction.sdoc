@@ -37,6 +37,9 @@ Most of the high-level stuff is contained in this doc/ directory. Here's what ea
   A fairly detailed low-level design of the initial x86-64 compiler. This particular compiler generates unoptimized code that is then traced and given to the optimizer when a hotspot is
   identified. However, the details of this compiler are very important because the structures that it uses are accessed as Ruby classes by the optimizer.
 
+| x64-structures.sdoc
+  A rundown of the various assembly-level data structures that are implemented. These are used throughout the compiler, garbage collector, etc.
+
 | x64-gc.sdoc
   Gory details of the garbage collector for x86-64. It's callable as a method on Rift::Kernel and runs automatically when the heap is full. This is an implementation detail more than an API
   that gets used elsewhere, so there isn't a particular reason to read it unless you're interested to see how Rift collects garbage.

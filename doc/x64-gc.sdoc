@@ -1,4 +1,6 @@
 X86-64 garbage collection details.
+Note that this garbage collector is not particularly insightful or clever. Later on I'll redesign it to improve throughput and decrease latency.
+
 When Rift starts up, the first thing it does is mmap() a region for the core image. This image is then used for both data and code. %rsp is then set to the highest available address, and it
 progresses downwards towards the bottom of the region:
 
@@ -7,5 +9,14 @@ progresses downwards towards the bottom of the region:
   ------------------------------------------------------------
                                                ^ initial %rsp
 
-Code tracing and garbage collection.
-The garbage collector normally runs incrementally and compacts memory.
+When %rsp hits the new/old barrier, it triggers a new-gen GC cycle. The new generation is then compacted and packed towards the top, and objects that have survived more than a couple of
+new-gen collections are packed towards the bottom of the old generation. So the memory usage pattern becomes this:
+
+| ----------------------------------------------
+  |#######              |           ###########|
+  ----------------------------------------------
+
+This is useful because it allows for very quick adjustment of the new/old separator. (i.e. the adjustment can be made without moving objects in memory.)
+
+Object marking.
+Like many things in Rift, this uses a hashtable and thus avoids contaminating the actual pointer values.
