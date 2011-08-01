@@ -1,0 +1,4 @@
+Trace inlining.
+Naive CPS conversion produces a lot of overhead, and it quickly becomes important to eliminate some of the generality by linking trace sets together. This can be done using traditional tracing
+JIT techniques; each block tracks its return continuations and those with monomorphic or small polymorphic continuation sets are then hard-compiled (provided that there's a good reason to do
+this).
