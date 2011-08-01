@@ -1,0 +1,39 @@
+Implicit parallelism.
+Rift can find the dependencies of a continuation because core methods have side-effect flags. This means that code that would normally block on IO or computation can run more efficiently. For
+example, consider this:
+
+f1 = File.read('file1')
+f2 = File.read('file2')
+puts 'hi'
+puts f1
+
+In this case, file2 is never read and 'puts hi' happens before file1 is opened. 'f1' is required for the second puts, followed by the end of the program (a serializing operation); so Rift
+blocks on the second puts call, setting its continuation to be the exit handler.
+
+Explicit parallelism.
+Rift has a number of methods that change attributes about a continuation. This makes it possible to dictate the extent of parallelism you want to have. For instance, we can define two reads to
+the same file to be serial:
+
+f1       = serial(File, 'file1') {File.read('file1')}
+f1_again = serial(File, 'file1') {File.read('file1')}
+puts f1
+puts f1_again
+
+In this case the serial() annotation causes the continuation of File.read('file1') to mark a modification impurity and a dependency against the pair (File, 'file1'). This results in
+serialization for anything that depends on that pair, including another serial() annotation.
+
+Each puts() call is run in series, since puts() is marked with a modification impurity against STDOUT and a dependency on its argument. However, we can remove this impurity by using the
+ignore_serialization() annotation:
+
+ignore_serialization(STDOUT) {puts 'foo'}
+ignore_serialization(STDOUT) {puts 'bar'}
+
+Now these two calls will happen potentially at the same time, and in an undefined order because there is no data dependency. We could serialize them once again by doing this:
+
+x = ignore_serialization(STDOUT) {puts 'foo'}
+ignore_serialization(STDOUT) {puts 'bar' + x}
+
+Even though the STDOUT serialization is gone, the two statements are serialized because of the non-fictitious access to 'x' that creates a dependency on the first statement.
+
+NOTE.
+I need to think this through. It's not clear that runtime annotations are the way to go here...
