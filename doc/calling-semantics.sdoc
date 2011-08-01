@@ -19,3 +19,11 @@ foo:
        cons(void(invoke(bif)),
             invoke(baz)))
 cons(invoke(foo), invoke(puts))
+
+The semantics of a cons() is this:
+
+invoke(cons(A, B)) = invoke(B, invoke(A))
+
+That is, a CPS-converted sequence is evaluated dependencies-first. Implicit to this design (and the fact that we cons 'improperly' in Lisp terms) is that tail calls are automatically invoked
+as such. This happens because 'cons' is used as an infix operator and thus produces heterogeneous 'lists' (if you want to think about it in those terms). Because cons is the function that
+produces return continuations, there will be one fewer return continuation than there are distinct statements; thus a tail call used to return to the original context.
