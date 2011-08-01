@@ -16,7 +16,9 @@ new-gen collections are packed towards the bottom of the old generation. So the 
   |#######              |           ###########|
   ----------------------------------------------
 
-This is useful because it allows for very quick adjustment of the new/old separator. (i.e. the adjustment can be made without moving objects in memory.)
+This is useful because it allows for very quick adjustment of the new/old separator. (i.e. the adjustment can often be made without moving objects in memory.)
 
 Object marking.
-Like many things in Rift, this uses a hashtable and thus avoids contaminating the actual pointer values.
+Like many things in Rift, this uses a hashtable and thus avoids contaminating the actual pointer values. The primary hashtable is a set of marked objects; these are constructed from the
+root-set when a mark pass is made. Once this table is filled, the marked objects in whichever generation is being collected are copied into a replacement segment and the original generation is
+removed.

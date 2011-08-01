@@ -1,0 +1,7 @@
+Weaknesses of YARV.
+Both YARV and JRuby take a suboptimal approach to dealing with method invocations. YARV fails to cache virtual method lookups at all, and JRuby caches them lazily (i.e. on lookup). YARV is
+especially problematic because of the double modulus and indirect function call present in its st_hash library. LuaJIT has the advantage of replacing the modulus with a bitwise AND (at the
+expense of collisions, but the load factor can be modified to deal with this), and Lua tables don't support inheritance, thus resulting in a flat lookup.
+
+Modulus latency is high (50+ clock cycles on Atom processors) and throughput is low. For this reason it's important to prefer bitwise operations. Java's HashMap is careful to always use
+power-of-two sizes due to the performance problems with division/modulus operations.
