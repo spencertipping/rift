@@ -1,0 +1,21 @@
+Semantics of method calls.
+Unlike MRI and YARV, method calls are stackless. This means that continuations are invoked without the caller creating a new frame. This makes tail-call optimization easier, but requires some
+extra bookkeeping for normal returning calls.
+
+The difference between a tail call and a returning call is the context. For example:
+
+def foo
+  bar
+  bif
+  baz
+end
+puts foo
+
+The AST represents each sequence element within 'foo' as a call(head, k -> tail). So the returning continuation is set to the tail pointer, which signifies the 'rest' of the computation. (For
+this reason, sequence elements right-associate.)
+
+foo:
+  cons(void(invoke(bar)),
+       cons(void(invoke(bif)),
+            invoke(baz)))
+cons(invoke(foo), invoke(puts))
