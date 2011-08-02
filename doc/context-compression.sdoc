@@ -1,0 +1,6 @@
+Lexical context compression.
+Jeffrey Siskind's Stalin compiler compresses what it refers to as 'fictitious' variables, and then compresses lexical contexts to minimize the amount of memory that needs to be allocated when
+a closure is created. It often ends up erasing closures completely by means that I'm on my way to understanding.
+
+Rift can do something similar since contexts are immutable. Most closures are used in conjunction with virtual methods, so static escape analysis isn't feasible. However, we can detect
+escaping later on and mark methods as having or not having this side effect. (By definition, side-effect-free methods cannot cause values to escape.)

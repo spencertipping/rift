@@ -1,0 +1,3 @@
+Marking continuations.
+It's good to know certain things about continuations (e.g. methods, basic blocks, etc). For example, if a continuation is pure (i.e. side effect-free), then it's also pure from a
+garbage-collection perspective, making it transparent to escape analysis.
