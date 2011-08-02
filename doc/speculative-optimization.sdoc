@@ -1,0 +1,11 @@
+Speculative optimization.
+Sometimes it's worth assuming an invariant for the sake of optimization, knowing that the 'invariant' may be invalidated later. When this happens, whatever traces are linked to those
+conditions are deleted and may later be recompiled under a new set of assumptions.
+
+One example of this kind of thing is collection mapping. Suppose, for instance, we run this code:
+
+puts [1, 2, 3].map {|x| x + 1}
+
+This code technically is GC-transparent, since 'puts' terminates its arguments (and is used in a linear context) and .map() is being used with a pure closure. However, proving this is not
+particularly straightforward given that .map() could theoretically be redefined at any moment. In order to run this code efficiently, we speculatively fix the definition of .map() and perform
+local optimization on these invalidatable assumptions.
