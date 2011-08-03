@@ -4,3 +4,8 @@ a closure is created. It often ends up erasing closures completely by means that
 
 Rift can do something similar since contexts are immutable. Most closures are used in conjunction with virtual methods, so static escape analysis isn't feasible. However, we can detect
 escaping later on and mark methods as having or not having this side effect. (See continuation-flags.sdoc for details about how continuations get marked.)
+
+A context is eligible for compression if:
+
+| 1. It defines no local variables. In this case it is never referenced.
+  2. Any locals referenced from child contexts are fictitious.

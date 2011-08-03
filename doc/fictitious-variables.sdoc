@@ -1,0 +1,2 @@
+Fictitious variable detection.
+Not all variables require space to be allocated. Sometimes variables are aliased to pure expressions; in this case, they can be lazily computed.
