@@ -1,0 +1,4 @@
+JVM interoperability.
+It should be possible to leverage the Java standard library. This eliminates a lot of platform-specific library maintenance. Probably the best way to do this is to generate proxy .class files
+and load them into a JVM constructed with the Java Invocation API. This would enable the JVM to be used for platform-specific stuff, but maintain good continuation performance. The only
+particular restriction is that Java classes would have to be continuation-transparent.
