@@ -7,4 +7,4 @@ library = Rift::HeaderContext.new('/usr/include/')
 UUID = library.link('uuid.h')
 
 It isn't necessarily obvious how to link this stuff. In particular, how should GC be handled? This is managed by an interpretation bias, which dictates things like how primitive arguments are
-interpreted.
+interpreted and how to merge various camelCasing conventions into something more usable.
