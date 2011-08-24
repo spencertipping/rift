@@ -1,4 +1,4 @@
 Type system.
 Rift implements a dynamic strong type system. As such, it generates type-specialized code and assumes type invariance, allowing for the fact that reified types create the possibility of
 dynamic polymorphism. So, for instance, the code 'a + b' is left in an abstract state until the types of 'a' and 'b' are known; at this point 'a + b' is compiled given those assumptions.
-Further optimization such as method inlining are performed given local monomorphism, which is guaranteed once the types are fixed (and thus erased).
+Further optimizations such as method inlining are performed given local monomorphism, which is guaranteed once the types are fixed (and thus erased).

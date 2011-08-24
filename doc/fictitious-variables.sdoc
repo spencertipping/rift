@@ -1,2 +1,6 @@
 Fictitious variable detection.
 Not all variables require space to be allocated. Sometimes variables are aliased to pure expressions; in this case they can be lazily computed, subject to side-effect interactions.
+
+Detecting fictitious variables.
+The most interesting property of a fictitious variable is that it is never assigned to. Variable assignment can be detected at compile-time. Therefore, a subset of fictitious variables can be
+flagged as such during the compilation step rather than determined as a runtime property.
